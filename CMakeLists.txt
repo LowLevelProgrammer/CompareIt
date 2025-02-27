@@ -10,5 +10,5 @@ file(GLOB_RECURSE SRC_FILES src/*.cpp)
 
 add_executable(CompareIt ${SRC_FILES})
 
-target_include_directories(CompareIt PRIVATE src)
+target_include_directories(CompareIt PRIVATE src src/Comparison)
 

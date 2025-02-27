@@ -1,6 +1,10 @@
 Debug/
 build/
+cmake-build-debug/
 
 .cache/
 
+.idea/
+
 compile_commands.json
+.clang-format
