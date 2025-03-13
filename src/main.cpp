@@ -1,8 +1,9 @@
-#include "File.h"
+#include "Directory.h"
 
+#include <filesystem>
 #include <iostream>
 
-int main(int argc, char* argv[]) {
+int main(int argc, char *argv[]) {
 
   if (argc != 2) {
     std::cerr << "Usage: " << argv[0] << " <filename>" << std::endl;
@@ -10,17 +11,14 @@ int main(int argc, char* argv[]) {
   }
 
   std::filesystem::path cwd = std::filesystem::current_path();
-  std::filesystem::path filePath = cwd / argv[1];
+  std::filesystem::path path = cwd / argv[1];
 
-  if (!std::filesystem::exists(filePath)) {
-    std::cerr << "File " << filePath.string() << " does not exist" << std::endl;
+  if (!std::filesystem::exists(path)) {
+    std::cerr << "File " << path.string() << " does not exist" << std::endl;
     return 1;
   }
 
-  File file(filePath);
+  Directory directory(path);
 
-  std::cout << "File: " << file.GetName() << std::endl;
-  std::cout << "Size of file: " << file.GetSize() << std::endl;
-  std::cout << "Extension: " << file.GetExtension() << std::endl;
-  std::cout << "Path: " << file.GetPath() << std::endl;
+  directory.PrintDirectory();
 }

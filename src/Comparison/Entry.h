@@ -5,10 +5,10 @@
 
 class Entry {
 public:
-  Entry(const std::filesystem::path& path) {
+  Entry(const std::filesystem::path &path) {
 
     // TODO: Add validation for path
-    m_Path = path;
+    m_Path = std::filesystem::absolute(path);
     m_Name = m_Path.filename().string();
     m_IsSymlink = std::filesystem::is_symlink(m_Path);
     m_Size = 0;

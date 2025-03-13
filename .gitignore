@@ -8,3 +8,6 @@ cmake-build-debug/
 
 compile_commands.json
 .clang-format
+
+result.txt
+result1.txt

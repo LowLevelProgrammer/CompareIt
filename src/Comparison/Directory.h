@@ -1,6 +1,7 @@
 #pragma once
 
-#include "Entry.h"
+#include "File.h"
+#include <vector>
 
 class Directory : public Entry {
 public:
@@ -8,4 +9,12 @@ public:
   ~Directory() = default;
 
   virtual void ComputeSize() override;
+
+  void ScanDirectory();
+
+  void PrintDirectory(const std::string &prefix = "", bool isLast = true) const;
+
+public:
+  std::vector<File> m_Files;
+  std::vector<Directory> m_SubDirectories;
 };
