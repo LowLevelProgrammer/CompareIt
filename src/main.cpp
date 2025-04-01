@@ -1,24 +1,13 @@
 #include "Directory.h"
-
-#include <filesystem>
 #include <iostream>
+#include <string>
 
 int main(int argc, char *argv[]) {
 
-  if (argc != 2) {
-    std::cerr << "Usage: " << argv[0] << " <filename>" << std::endl;
-    return 1;
-  }
+	Directory dir("D:\\Projects\\Cpp\\CompareIt");
+  dir.ComputeTotalSize();
+  std::cout << "Size of dir = " << (dir.GetSize().has_value() ? std::to_string(dir.GetSize().value()) : "N/A") << std::endl;
 
-  std::filesystem::path cwd = std::filesystem::current_path();
-  std::filesystem::path path = cwd / argv[1];
+  dir.PrintDirectory();
 
-  if (!std::filesystem::exists(path)) {
-    std::cerr << "File " << path.string() << " does not exist" << std::endl;
-    return 1;
-  }
-
-  Directory directory(path);
-
-  directory.PrintDirectory();
 }

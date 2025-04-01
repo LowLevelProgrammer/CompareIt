@@ -8,10 +8,12 @@ public:
   explicit File(const std::filesystem::path &path);
   ~File() = default;
 
+  bool Refresh() override;
+
   std::string GetExtension() const { return m_Extension; }
 
 private:
-  virtual void ComputeSize() override;
+  void ComputeSize();
   void DetectExtension();
 
 private:

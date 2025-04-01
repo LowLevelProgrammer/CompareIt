@@ -1,12 +1,15 @@
 Debug/
 build/
 cmake-build-debug/
+out/
 
 .cache/
 
 .idea/
+.vs/
 
 compile_commands.json
+CMakeSettings.json
 .clang-format
 
 result.txt
