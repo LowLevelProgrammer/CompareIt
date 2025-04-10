@@ -1,21 +1,17 @@
 #pragma once
 
 #include "Directory.h"
-#include <filesystem>
-#include <memory>
-
-enum class Mode { SHA256, ByteStream };
 
 class Comparator {
 public:
   Comparator();
   ~Comparator();
 
-  void SetDirectory1(std::filesystem::path directoryPath1);
-  void SetDirectory2(std::filesystem::path directoryPath2);
-  void SetComparisonMode(Mode mode);
+  bool SetDirectory1(std::filesystem::path directoryPath1);
+  bool SetDirectory2(std::filesystem::path directoryPath2);
 
   bool Compare();
+  bool AreFilesIdentical(const File& file1, const File& file2);
 
 private:
   bool CompareEntriesName();
@@ -23,5 +19,4 @@ private:
 private:
   std::unique_ptr<Directory> m_Directory1;
   std::unique_ptr<Directory> m_Directory2;
-  Mode m_ComparisonMode = Mode::SHA256;
 };

@@ -1,8 +1,6 @@
 #include "Directory.h"
 
 #include <iostream>
-#include <optional>
-#include <string>
 
 Directory::Directory(const std::filesystem::path &path) : Entry(path) {
   Refresh();
@@ -82,4 +80,12 @@ std::uintmax_t Directory::GetDirectoryShallowSize() {
   }
 
   return directoryShallowSize;
+}
+
+void Directory::GetAllFiles(std::vector<File>& files) const {
+  files.insert(files.end(), m_Files.begin(), m_Files.end());
+
+  for (const auto& directory : m_SubDirectories) {
+    directory.GetAllFiles(files);
+  }
 }

@@ -1,13 +1,21 @@
-#include "Directory.h"
+#include "Comparator.h"
 #include <iostream>
-#include <string>
 
 int main(int argc, char *argv[]) {
 
-	Directory dir("D:\\Projects\\Cpp\\CompareIt");
-  dir.ComputeTotalSize();
-  std::cout << "Size of dir = " << (dir.GetSize().has_value() ? std::to_string(dir.GetSize().value()) : "N/A") << std::endl;
+  if (argc != 3) {
+    std::cerr << "Usage: " << argv[0] << " <file1Path> <file2Path>" << std::endl;
+    return 1;
+  }
 
-  dir.PrintDirectory();
+  File file1(argv[1]);
+  File file2(argv[2]);
+  std::cout << "File 1 = " << file1.GetPath() << ", Is Valid: " << (file1.IsValid() ? "Yes" : "No") << std::endl;
+  std::cout << "File 2 = " << file2.GetPath() << ", Is Valid: " << (file2.IsValid() ? "Yes" : "No") << std::endl;
 
+
+  Comparator comparator;
+  bool areIdentical = comparator.AreFilesIdentical(file1, file2);
+
+  std::cout << "Are files identical: " << (areIdentical? "Yes" : "No") << std::endl;
 }

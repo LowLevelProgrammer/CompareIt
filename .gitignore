@@ -14,3 +14,7 @@ CMakeSettings.json
 
 result.txt
 result1.txt
+
+tests/**
+Script.bat
+output.txt

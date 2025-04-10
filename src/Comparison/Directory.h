@@ -1,7 +1,7 @@
 #pragma once
 
+#include "Entry.h"
 #include "File.h"
-#include <vector>
 
 class Directory : public Entry {
 public:
@@ -16,6 +16,8 @@ public:
   const std::vector<Directory> &GetDirectories() const {
     return m_SubDirectories;
   }
+
+  void GetAllFiles(std::vector<File>& files) const;
 
 private:
   std::uintmax_t GetDirectoryShallowSize();

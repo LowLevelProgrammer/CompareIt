@@ -1,7 +1,6 @@
 #pragma once
 
 #include "Entry.h"
-#include <string>
 
 class File : public Entry {
 public:

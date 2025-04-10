@@ -1,7 +1,5 @@
 #include "File.h"
 
-#include "Entry.h"
-
 File::File(const std::filesystem::path &path) : Entry(path) { Refresh(); }
 
 bool File::Refresh() {
