@@ -10,6 +10,7 @@ public:
   bool Refresh() override;
 
   std::string GetExtension() const { return m_Extension; }
+  EntryType GetType() const override { return EntryType::File; }
 
 private:
   void ComputeSize();

@@ -1,4 +1,5 @@
 #include "Directory.h"
+#include "Entry.h"
 
 #include <iostream>
 
@@ -38,6 +39,10 @@ std::uintmax_t Directory::ComputeTotalSize() {
   return m_Size.value();
 }
 
+bool Directory::IsDirectoryEmpty() const {
+  return (m_SubDirectories.empty() && m_Files.empty());
+}
+
 void Directory::ShallowScanDirectory() {
   for (const auto &entry : std::filesystem::directory_iterator(m_Path)) {
     if (std::filesystem::is_directory(entry)) {
@@ -48,6 +53,29 @@ void Directory::ShallowScanDirectory() {
   }
 }
 
+void Directory::PrintDirectory(std::vector<Entry*> entries, const std::string &prefix, bool isLast) const {
+  // Print current directory name
+  std::cout << prefix << (isLast ? "└─" : "├─") << "[DIR] " << m_Name << " ("
+            << (m_Size.has_value() ? std::to_string(m_Size.value()) : "N/A") << ")" << std::endl;
+
+  // Prepare new prefix for children
+  std::string newPrefix = prefix + (isLast ? "    " : "│  ");
+
+  // Print subdirectories first
+  for (size_t i = 0; i < m_SubDirectories.size(); ++i) {
+    bool lastSubDir = (i == m_SubDirectories.size() - 1) &&
+                      m_Files.empty(); // Last entry check
+    m_SubDirectories[i].PrintDirectory(newPrefix, lastSubDir);
+  }
+
+  // Print files 
+  for (size_t i = 0; i < m_Files.size(); ++i) {
+    std::cout << newPrefix << (i == m_Files.size() - 1 ? "└─ " : "├─ ");
+    std::optional<std::uintmax_t> size = m_Files[i].GetSize();
+    std::cout << m_Files[i].GetName() << " (" << (size.has_value() ? std::to_string(size.value()) : "N/A")  << ")"
+              << std::endl;
+  }
+}
 void Directory::PrintDirectory(const std::string &prefix, bool isLast) const {
   // Print current directory name
   std::cout << prefix << (isLast ? "└─" : "├─") << "[DIR] " << m_Name << " ("
@@ -72,7 +100,7 @@ void Directory::PrintDirectory(const std::string &prefix, bool isLast) const {
   }
 }
 
-std::uintmax_t Directory::GetDirectoryShallowSize() {
+std::uintmax_t Directory::GetDirectoryShallowSize() const {
   std::uintmax_t directoryShallowSize = 0;
 
   for (const auto &file : m_Files) {
@@ -82,6 +110,12 @@ std::uintmax_t Directory::GetDirectoryShallowSize() {
   return directoryShallowSize;
 }
 
+std::vector<File> Directory::GetAllFiles() const {
+  std::vector<File> result;
+  GetAllFiles(result);
+  return result;
+}
+
 void Directory::GetAllFiles(std::vector<File>& files) const {
   files.insert(files.end(), m_Files.begin(), m_Files.end());
 
@@ -89,3 +123,20 @@ void Directory::GetAllFiles(std::vector<File>& files) const {
     directory.GetAllFiles(files);
   }
 }
+
+void Directory::GetAllLeafEntries(std::vector<Entry*>& entries) const {
+
+  for (const auto& file : m_Files) {
+    entries.push_back((Entry*)&file);
+  }
+
+  for(const auto& subDirectory: m_SubDirectories){
+    if (subDirectory.IsDirectoryEmpty()) {
+      entries.push_back((Entry*)&subDirectory);
+    }
+    else {
+      subDirectory.GetAllLeafEntries(entries);
+    }
+  }
+}
+

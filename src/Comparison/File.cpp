@@ -13,8 +13,6 @@ bool File::Refresh() {
   return true;
 }
 
-void File::ComputeSize() {
-  m_Size = std::filesystem::file_size(m_Path);
-}
+void File::ComputeSize() { m_Size = std::filesystem::file_size(m_Path); }
 
 void File::DetectExtension() { m_Extension = m_Path.extension().string(); }
