@@ -5,6 +5,8 @@
 #include <unordered_set>
 #include <vector>
 
+using RelativeEntrySet = std::unordered_set<RelativeEntry, RelativeEntryHasher, RelativeEntryEqual>;
+
 class Comparator {
 public:
   Comparator();
@@ -14,14 +16,10 @@ public:
   bool SetDirectory2(std::filesystem::path directoryPath2);
 
   bool Compare();
-  bool AreFilesIdentical(const File &file1, const File &file2);
 
 private:
-  bool CompareEntriesName(
-      std::unordered_set<RelativeEntry, RelativeEntryHasher, RelativeEntryEqual>
-          dir1Set,
-      std::unordered_set<RelativeEntry, RelativeEntryHasher, RelativeEntryEqual>
-          dir2Set);
+  bool AreFilesIdentical(const File &file1, const File &file2);
+  bool CompareEntriesName(RelativeEntrySet dir1Set, RelativeEntrySet dir2Set);
   bool AreDirectoriesIdentical(const std::vector<File> &dir1Files,
                                const std::vector<File> &dir2Files);
 

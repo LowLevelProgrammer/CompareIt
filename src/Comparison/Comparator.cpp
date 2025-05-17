@@ -48,10 +48,8 @@ bool Comparator::Compare() {
   std::filesystem::path baseDir1Path = m_Directory1->GetPath();
   std::filesystem::path baseDir2Path = m_Directory2->GetPath();
 
-  std::unordered_set<RelativeEntry, RelativeEntryHasher, RelativeEntryEqual>
-      dir1Set;
-  std::unordered_set<RelativeEntry, RelativeEntryHasher, RelativeEntryEqual>
-      dir2Set;
+  RelativeEntrySet dir1Set;
+  RelativeEntrySet dir2Set;
 
   for (Entry *e : dir1Entries) {
     dir1Set.emplace(e, baseDir1Path);
@@ -68,11 +66,7 @@ bool Comparator::Compare() {
   return true;
 }
 
-bool Comparator::CompareEntriesName(
-    std::unordered_set<RelativeEntry, RelativeEntryHasher, RelativeEntryEqual>
-        dir1Set,
-    std::unordered_set<RelativeEntry, RelativeEntryHasher, RelativeEntryEqual>
-        dir2Set) {
+bool Comparator::CompareEntriesName(RelativeEntrySet dir1Set, RelativeEntrySet dir2Set) {
 
   assert(
       dir1Set.size() == dir2Set.size() &&

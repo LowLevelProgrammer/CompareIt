@@ -20,6 +20,6 @@ file(GLOB_RECURSE SRC_FILES src/*.cpp)
 
 add_executable(CompareIt ${SRC_FILES})
 
-target_include_directories(CompareIt PRIVATE src src/Comparison)
+target_include_directories(CompareIt PRIVATE src src/Entries src/Comparison)
 #target_link_libraries(CompareIt fltk)
 #set_target_properties(CompareIt PROPERTIES WIN32_EXECUTABLE YES)
