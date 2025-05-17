@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Entry.h"
+
 #include <functional>
 
 struct RelativeEntry {

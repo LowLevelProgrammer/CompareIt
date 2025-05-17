@@ -19,6 +19,6 @@ int main(int argc, char *argv[]) {
   comparator.SetDirectory2(dir2);
   bool areIdentical = comparator.Compare();
 
-  std::cout << "Are count identical: " << (areIdentical ? "Yes" : "No")
+  std::cout << "Are folders identical: " << (areIdentical ? "Yes" : "No")
             << std::endl;
 }

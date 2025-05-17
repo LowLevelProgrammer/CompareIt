@@ -42,6 +42,7 @@ bool Comparator::Compare() {
   PrintLeafEntries(dir2Entries, "Directory 2");
 
   if (dir1Entries.size() != dir2Entries.size()) {
+    std::cout << "Entries count mismatch" << std::endl;
     return false;
   }
 
@@ -60,13 +61,22 @@ bool Comparator::Compare() {
   }
 
   if (!CompareEntriesName(dir1Set, dir2Set)) {
+    std::cout << "Entries do not match" << std::endl;
+    return false;
+  } else {
+    std::cout << "Entries match" << std::endl;
+  }
+
+  if (!AreDirectoriesIdentical(dir1Set, dir2Set)) {
+    std::cout << "Entries not identical" << std::endl;
     return false;
   }
 
   return true;
 }
 
-bool Comparator::CompareEntriesName(RelativeEntrySet dir1Set, RelativeEntrySet dir2Set) {
+bool Comparator::CompareEntriesName(RelativeEntrySet dir1Set,
+                                    RelativeEntrySet dir2Set) {
 
   assert(
       dir1Set.size() == dir2Set.size() &&
@@ -76,35 +86,32 @@ bool Comparator::CompareEntriesName(RelativeEntrySet dir1Set, RelativeEntrySet d
     if (dir2Set.find(re) == dir2Set.end())
       return false;
     dir2Set.erase(re);
-    PrintSet(dir2Set);
   }
   return dir2Set.empty();
 }
 
-bool Comparator::AreDirectoriesIdentical(const std::vector<File> &dir1Files,
-                                         const std::vector<File> &dir2Files) {
+bool Comparator::AreDirectoriesIdentical(RelativeEntrySet dir1Set,
+                                         RelativeEntrySet dir2Set) {
 
-  std::unordered_set<std::string> dir1AbsolutePathSet;
-  std::unordered_set<std::string> dir2AbsolutePathSet;
+  for (const auto &relEntry1 : dir1Set) {
+    if (relEntry1.entry->GetType() == EntryType::File) {
+      const File *file1 = dynamic_cast<File *>(relEntry1.entry);
 
-  for (const auto &file : dir1Files) {
-    dir1AbsolutePathSet.insert(file.GetPath().string());
+      const auto relEntry2 = dir2Set.find(relEntry1);
+      const File *file2 = dynamic_cast<File *>(relEntry2->entry);
+
+      if (!AreFilesIdentical(file1, file2)) {
+        return false;
+      }
+    }
   }
 
-  for (const auto &file : dir2Files) {
-    dir2AbsolutePathSet.insert(file.GetPath().string());
-  }
-
-  for (const auto &filePath : dir1AbsolutePathSet) {
-    std::string file1 = filePath;
-  }
-
-  return false;
+  return true;
 }
 
-bool Comparator::AreFilesIdentical(const File &file1, const File &file2) {
-  std::ifstream fileStream1(file1.GetPath(), std::ios::binary);
-  std::ifstream fileStream2(file2.GetPath(), std::ios::binary);
+bool Comparator::AreFilesIdentical(const File *file1, const File *file2) {
+  std::ifstream fileStream1(file1->GetPath(), std::ios::binary);
+  std::ifstream fileStream2(file2->GetPath(), std::ios::binary);
 
   if (!fileStream1.is_open() || !fileStream2.is_open()) {
     std::cerr << "Error opening files.\n";

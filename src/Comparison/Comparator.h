@@ -2,10 +2,11 @@
 
 #include "Directory.h"
 #include "Hasher.h"
-#include <unordered_set>
-#include <vector>
 
-using RelativeEntrySet = std::unordered_set<RelativeEntry, RelativeEntryHasher, RelativeEntryEqual>;
+#include <unordered_set>
+
+using RelativeEntrySet =
+    std::unordered_set<RelativeEntry, RelativeEntryHasher, RelativeEntryEqual>;
 
 class Comparator {
 public:
@@ -18,10 +19,10 @@ public:
   bool Compare();
 
 private:
-  bool AreFilesIdentical(const File &file1, const File &file2);
+  bool AreFilesIdentical(const File *file1, const File *file2);
   bool CompareEntriesName(RelativeEntrySet dir1Set, RelativeEntrySet dir2Set);
-  bool AreDirectoriesIdentical(const std::vector<File> &dir1Files,
-                               const std::vector<File> &dir2Files);
+  bool AreDirectoriesIdentical(RelativeEntrySet dir1Set,
+                               RelativeEntrySet dir2Set);
 
 private:
   std::unique_ptr<Directory> m_Directory1;
