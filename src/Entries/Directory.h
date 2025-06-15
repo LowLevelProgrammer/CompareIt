@@ -2,6 +2,7 @@
 
 #include "Entry.h"
 #include "File.h"
+#include <vector>
 
 class Directory : public Entry {
 public:

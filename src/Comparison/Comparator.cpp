@@ -1,10 +1,10 @@
 #include "Comparator.h"
 
 #include "ProgressStatus.h"
-#include "Utils.h"
 
 #include <cassert>
 #include <cstdlib>
+#include <cstring>
 #include <fstream>
 #include <iostream>
 #include <stdlib.h>
@@ -48,12 +48,11 @@ bool Comparator::Compare() {
   std::vector<Entry *> dir2Entries;
   m_Directory2->GetAllLeafEntries(dir2Entries);
 
-  // PrintLeafEntries(dir1Entries, "Directory 1");
-  // PrintLeafEntries(dir2Entries, "Directory 2");
-
   if (dir1Entries.size() != dir2Entries.size()) {
     // std::cout << "Entries count mismatch" << std::endl;
-    size_t diff = _abs64(dir1Entries.size() - dir2Entries.size());
+    size_t diff = (dir1Entries.size() > dir2Entries.size())
+                      ? (dir1Entries.size() - dir2Entries.size())
+                      : (dir2Entries.size() - dir1Entries.size());
     m_ProgressReporter.ReportCountMismatch(diff);
     return false;
   }
