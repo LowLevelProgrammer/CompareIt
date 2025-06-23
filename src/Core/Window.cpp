@@ -2,10 +2,7 @@
 
 #include <qboxlayout.h>
 #include <qfiledialog.h>
-#include <qmainwindow.h>
 #include <qobject.h>
-#include <qpushbutton.h>
-#include <qwidget.h>
 
 Window::Window(QWidget *parent) : QMainWindow(parent) {
   QWidget *central = new QWidget(this);
@@ -14,36 +11,58 @@ Window::Window(QWidget *parent) : QMainWindow(parent) {
   // Inputs
   QHBoxLayout *entriesHorizontalLayout = new QHBoxLayout;
 
-  m_Entry1 = new QLineEdit();
-  m_Entry1->setPlaceholderText("Enter entry 1 location");
-  entriesHorizontalLayout->addWidget(m_Entry1);
+  m_Entry1Field = new QLineEdit();
+  m_Entry1Field->setPlaceholderText("Enter entry 1 location");
+  entriesHorizontalLayout->addWidget(m_Entry1Field);
 
-  m_Entry2 = new QLineEdit();
-  m_Entry2->setPlaceholderText("Enter entry 2 location");
-  entriesHorizontalLayout->addWidget(m_Entry2);
+  m_Entry2Field = new QLineEdit();
+  m_Entry2Field->setPlaceholderText("Enter entry 2 location");
+  entriesHorizontalLayout->addWidget(m_Entry2Field);
 
   mainLayout->addLayout(entriesHorizontalLayout);
 
   // Entry pickers
   QHBoxLayout *entryPickersLayout = new QHBoxLayout;
 
-  QPushButton *entry1Picker = new QPushButton("Open 1st Entry");
-  entryPickersLayout->addWidget(entry1Picker);
-  QPushButton *entry2Picker = new QPushButton("Open 2nd Entry");
-  entryPickersLayout->addWidget(entry2Picker);
+  m_Entry1Picker = new QPushButton("Open 1st Entry");
+  entryPickersLayout->addWidget(m_Entry1Picker);
+  m_Entry2Picker = new QPushButton("Open 2nd Entry");
+  entryPickersLayout->addWidget(m_Entry2Picker);
 
   mainLayout->addLayout(entryPickersLayout);
 
-  QPushButton *compareButton = new QPushButton("Compare");
-  compareButton->setEnabled(false);
-  mainLayout->addWidget(compareButton);
+  m_CompareButton = new QPushButton("Compare");
+  m_CompareButton->setEnabled(false);
+  mainLayout->addWidget(m_CompareButton);
+
+  // Progress bar
+  m_ProgressBar = new QProgressBar;
+  m_ProgressBar->setVisible(false); // initially hidden
+  mainLayout->addWidget(m_ProgressBar);
+
+  // Info/Log area
+  m_LogArea = new QTextEdit;
+  m_LogArea->setReadOnly(true);
+  m_LogArea->setVisible(false);
+  mainLayout->addWidget(m_LogArea);
+
+  // Cancel button
+  m_CancelButton = new QPushButton("Cancel");
+  m_CancelButton->setVisible(false);
+  mainLayout->addWidget(m_CancelButton);
 
   // Set central widget
   setCentralWidget(central);
 
-  connect(entry1Picker, &QPushButton::clicked, this, &Window::HandleOpenEntry1);
-  connect(entry2Picker, &QPushButton::clicked, this, &Window::HandleOpenEntry2);
-  connect(compareButton, &QPushButton::clicked, this, &Window::HandleCompare);
+  connect(m_Entry1Field, &QLineEdit::textChanged, this,
+          &Window::HandleEntry1TextChange);
+  connect(m_Entry2Field, &QLineEdit::textChanged, this,
+          &Window::HandleEntry2TextChange);
+  connect(m_Entry1Picker, &QPushButton::clicked, this,
+          &Window::HandleOpenEntry1);
+  connect(m_Entry2Picker, &QPushButton::clicked, this,
+          &Window::HandleOpenEntry2);
+  connect(m_CompareButton, &QPushButton::clicked, this, &Window::HandleCompare);
 
   setWindowTitle("Compare It");
   resize(800, 400);
@@ -54,15 +73,38 @@ Window::~Window() {}
 void Window::HandleOpenEntry1() {
   QString entry1 = QFileDialog::getOpenFileName(this, "Select a File/Folder");
   if (!entry1.isEmpty()) {
-    m_Entry1->setText(entry1);
+    m_Entry1Field->setText(entry1);
   }
 }
 void Window::HandleOpenEntry2() {
   QString entry2 = QFileDialog::getOpenFileName(this, "Select a File/Folder");
   if (!entry2.isEmpty()) {
-    m_Entry2->setText(entry2);
+    m_Entry2Field->setText(entry2);
   }
 }
+
+void Window::HandleEntry1TextChange() {
+  m_CompareButton->setEnabled(!m_Entry1Field->text().isEmpty() &&
+                              !m_Entry2Field->text().isEmpty());
+}
+
+void Window::HandleEntry2TextChange() {
+  m_CompareButton->setEnabled(!m_Entry1Field->text().isEmpty() &&
+                              !m_Entry2Field->text().isEmpty());
+}
+
 void Window::HandleCompare() {
+  m_Entry1Field->setEnabled(false);
+  m_Entry2Field->setEnabled(false);
+  m_Entry1Picker->setEnabled(false);
+  m_Entry2Picker->setEnabled(false);
+  m_CompareButton->setEnabled(false);
+
+  m_ProgressBar->setVisible(true);
+  m_LogArea->setVisible(true);
+  m_CancelButton->setVisible(true);
+
+  m_LogArea->clear();
+  m_LogArea->append("Starting comparison...");
   // TODO: Call compare function
 }
