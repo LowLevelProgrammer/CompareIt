@@ -1,8 +1,12 @@
 #include "Window.h"
 
+#include "ComparatorWorker.h"
+
 #include <qboxlayout.h>
+#include <qdir.h>
 #include <qfiledialog.h>
 #include <qobject.h>
+#include <qthread.h>
 
 Window::Window(QWidget *parent) : QMainWindow(parent) {
   QWidget *central = new QWidget(this);
@@ -71,13 +75,17 @@ Window::Window(QWidget *parent) : QMainWindow(parent) {
 Window::~Window() {}
 
 void Window::HandleOpenEntry1() {
-  QString entry1 = QFileDialog::getOpenFileName(this, "Select a File/Folder");
+  QString entry1 = QFileDialog::getExistingDirectory(
+      this, "Select Directory", QDir::homePath(),
+      QFileDialog::ShowDirsOnly | QFileDialog::DontResolveSymlinks);
   if (!entry1.isEmpty()) {
     m_Entry1Field->setText(entry1);
   }
 }
 void Window::HandleOpenEntry2() {
-  QString entry2 = QFileDialog::getOpenFileName(this, "Select a File/Folder");
+  QString entry2 = QFileDialog::getExistingDirectory(
+      this, "Select Directory", QDir::homePath(),
+      QFileDialog::ShowDirsOnly | QFileDialog::DontResolveSymlinks);
   if (!entry2.isEmpty()) {
     m_Entry2Field->setText(entry2);
   }
@@ -106,5 +114,45 @@ void Window::HandleCompare() {
 
   m_LogArea->clear();
   m_LogArea->append("Starting comparison...");
+
+  QString path1 = m_Entry1Field->text();
+  QString path2 = m_Entry2Field->text();
   // TODO: Call compare function
+  auto *worker = new ComparatorWorker(path1.toStdString(), path2.toStdString());
+
+  connect(worker, &ComparatorWorker::LogMessage, this, &Window::OnLogMessage);
+  connect(worker, &ComparatorWorker::ProgressChanged, this,
+          &Window::OnProgressChanged);
+
+  QThread *thread = new QThread;
+  worker->moveToThread(thread);
+
+  connect(thread, &QThread::started, worker, &ComparatorWorker::Run);
+  connect(worker, &ComparatorWorker::Finished, thread, &QThread::quit);
+  connect(worker, &ComparatorWorker::Finished, this,
+          &Window::OnCompareFinished);
+  connect(thread, &QThread::finished, thread, &QObject::deleteLater);
+
+  thread->start();
+}
+void Window::OnLogMessage(const QString &msg) { m_LogArea->append(msg); }
+
+void Window::OnProgressChanged(int percent) {
+  m_ProgressBar->setValue(percent);
+}
+
+void Window::OnCompareFinished(bool success) {
+  m_CompareButton->setEnabled(true);
+  m_CancelButton->setEnabled(false);
+  m_Entry1Field->setEnabled(true);
+  m_Entry2Field->setEnabled(true);
+  m_Entry1Picker->setEnabled(true);
+  m_Entry2Picker->setEnabled(true);
+  m_ProgressBar->setValue(100);
+
+  if (success) {
+    m_LogArea->append("Directories are identical!");
+  } else {
+    m_LogArea->append("Directories are NOT identical");
+  }
 }

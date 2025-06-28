@@ -1,16 +1,13 @@
 #include "Comparator.h"
 
-#include "ProgressStatus.h"
-
 #include <cassert>
-#include <cstdlib>
 #include <cstring>
 #include <fstream>
 #include <iostream>
 #include <stdlib.h>
+#include <string>
 
-Comparator::Comparator(ProgressCallback callback)
-    : m_ProgressReporter(callback) {}
+Comparator::Comparator() {}
 
 Comparator::~Comparator() {}
 
@@ -24,24 +21,28 @@ bool Comparator::SetDirectory2(std::filesystem::path directoryPath2) {
   return m_Directory2->IsValid();
 }
 
+void Comparator::SetLogCallback(LogCallback cb) { m_LogCb = cb; }
+
+void Comparator::SetProgressCallback(ProgressCallback cb) { m_ProgressCb = cb; }
+
 bool Comparator::Compare() {
-  m_ProgressReporter.ReportStarted(m_Directory1->GetPath(),
-                                   m_Directory2->GetPath());
+  Log("Starting entries comparison...");
+
+  Log("Entry 1 = " + m_Directory1->GetPath().string());
   if (!m_Directory1->IsValid()) {
-    // std::cout << "Directory 1 is not valid" << std::endl;
-    m_ProgressReporter.ReportNotValidEntry1(m_Directory1->GetPath());
+    Log("Entry 1 is not valid");
   } else {
-    std::cout << "Directory 1 is valid" << std::endl;
+    Log("Entry 1 is valid");
   }
 
+  Log("Entry 2 = " + m_Directory2->GetPath().string());
   if (!m_Directory2->IsValid()) {
-    // std::cout << "Directory 2 is not valid" << std::endl;
-    m_ProgressReporter.ReportNotValidEntry2(m_Directory2->GetPath());
+    Log("Entry 2 is not valid");
   } else {
-    std::cout << "Directory 2 is valid" << std::endl;
+    Log("Entry 2 is valid");
   }
 
-  m_ProgressReporter.ReportCountingEntriesStart();
+  Log("Counting entries");
 
   std::vector<Entry *> dir1Entries;
   m_Directory1->GetAllLeafEntries(dir1Entries);
@@ -49,11 +50,10 @@ bool Comparator::Compare() {
   m_Directory2->GetAllLeafEntries(dir2Entries);
 
   if (dir1Entries.size() != dir2Entries.size()) {
-    // std::cout << "Entries count mismatch" << std::endl;
     size_t diff = (dir1Entries.size() > dir2Entries.size())
                       ? (dir1Entries.size() - dir2Entries.size())
                       : (dir2Entries.size() - dir1Entries.size());
-    m_ProgressReporter.ReportCountMismatch(diff);
+    Log("Entry count mismatch, diff = " + std::to_string(diff));
     return false;
   }
 
@@ -72,10 +72,11 @@ bool Comparator::Compare() {
   }
 
   if (!CompareEntriesName(dir1Set, dir2Set)) {
-    std::cout << "Entries do not match" << std::endl;
+    Log("Entry's relative path do not match");
     return false;
   } else {
-    std::cout << "Entries match" << std::endl;
+    // std::cout << "Entries match" << std::endl;
+    Log("Entry's relative path match");
   }
 
   if (!AreDirectoriesIdentical(dir1Set, dir2Set)) {
@@ -83,7 +84,6 @@ bool Comparator::Compare() {
     return false;
   }
 
-  m_ProgressReporter.ReportIdentical();
   return true;
 }
 
@@ -96,7 +96,9 @@ bool Comparator::CompareEntriesName(RelativeEntrySet dir1Set,
 
   for (const auto &re : dir1Set) {
     if (dir2Set.find(re) == dir2Set.end()) {
-      m_ProgressReporter.ReportPathMismatch(re.relativePath, 2);
+      // m_ProgressReporter.ReportPathMismatch(re.relativePath, 2);
+      Log("Entry relative path mismatch, in Folder 2 for entry = " +
+          re.relativePath.string());
       return false;
     }
     dir2Set.erase(re);
@@ -104,7 +106,9 @@ bool Comparator::CompareEntriesName(RelativeEntrySet dir1Set,
 
   if (!dir2Set.empty()) {
     auto it = dir2Set.begin();
-    m_ProgressReporter.ReportPathMismatch(it->relativePath, 1);
+    // m_ProgressReporter.ReportPathMismatch(it->relativePath, 1);
+    Log("Entry relative path mismatch, in Folder 1 for entry = " +
+        it->relativePath.string());
   }
   return dir2Set.empty();
 }
@@ -119,12 +123,15 @@ bool Comparator::AreDirectoriesIdentical(const RelativeEntrySet &dir1Set,
       const auto relEntry2 = dir2Set.find(relEntry1);
       const File *file2 = dynamic_cast<File *>(relEntry2->entry);
 
-      m_ProgressReporter.ReportComparingContent(relEntry1.relativePath);
+      // m_ProgressReporter.ReportComparingContent(relEntry1.relativePath);
+      Log("Comparing entry: " + relEntry1.relativePath.string());
 
       if (!AreFilesIdentical(file1, file2)) {
-        m_ProgressReporter.ReportContentMismatch(relEntry1.relativePath);
+        // m_ProgressReporter.ReportContentMismatch(relEntry1.relativePath);
+        Log("Not okay");
         return false;
       }
+      Log("Okay");
     }
   }
 
@@ -158,4 +165,16 @@ bool Comparator::AreFilesIdentical(const File *file1, const File *file2) {
   }
 
   return true;
+}
+
+void Comparator::Log(const std::string &msg) {
+  if (m_LogCb) {
+    m_LogCb(msg);
+  }
+}
+
+void Comparator::ReportProgress(int percent) {
+  if (m_ProgressCb) {
+    m_ProgressCb(percent);
+  }
 }

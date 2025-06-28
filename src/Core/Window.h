@@ -2,6 +2,7 @@
 
 #include <qlineedit.h>
 #include <qmainwindow.h>
+#include <qobject.h>
 #include <qprogressbar.h>
 #include <qpushbutton.h>
 #include <qtextedit.h>
@@ -18,6 +19,10 @@ public:
   void HandleEntry1TextChange();
   void HandleEntry2TextChange();
   void HandleCompare();
+
+  void OnLogMessage(const QString &msg);
+  void OnProgressChanged(int percent);
+  void OnCompareFinished(bool success);
 
 private:
   QLineEdit *m_Entry1Field;
