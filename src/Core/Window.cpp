@@ -5,6 +5,7 @@
 #include <qboxlayout.h>
 #include <qdir.h>
 #include <qfiledialog.h>
+#include <qmessagebox.h>
 #include <qobject.h>
 #include <qthread.h>
 
@@ -152,7 +153,11 @@ void Window::OnCompareFinished(bool success) {
 
   if (success) {
     m_LogArea->append("Directories are identical!");
+    QMessageBox::information(this, "Comparison Result",
+                             "✅ The directories are identical.");
   } else {
     m_LogArea->append("Directories are NOT identical");
+    QMessageBox::information(this, "Comparison Result",
+                             "❌The directories are NOT identical.");
   }
 }
