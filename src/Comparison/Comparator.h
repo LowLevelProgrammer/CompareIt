@@ -3,6 +3,7 @@
 #include "Directory.h"
 #include "Hasher.h"
 
+#include <cstdint>
 #include <functional>
 #include <unordered_set>
 
@@ -31,7 +32,9 @@ private:
   ProgressCallback m_ProgressCb;
 
 private:
-  bool AreFilesIdentical(const File *file1, const File *file2);
+  bool AreFilesIdentical(const File *file1, const File *file2,
+                         const std::uintmax_t totalSize,
+                         std::uintmax_t &currentCompared);
   bool CompareEntriesName(RelativeEntrySet dir1Set, RelativeEntrySet dir2Set);
   bool AreDirectoriesIdentical(const RelativeEntrySet &dir1Set,
                                const RelativeEntrySet &dir2Set);

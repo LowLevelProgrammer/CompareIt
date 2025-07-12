@@ -14,6 +14,7 @@ public:
                       const std::string &prefix = "", bool isLast = true) const;
   void PrintDirectory(const std::string &prefix = "", bool isLast = true) const;
   std::uintmax_t ComputeTotalSize();
+  std::uintmax_t ComputeTotalSizeInbuilt();
   bool IsDirectoryEmpty() const;
 
   const std::vector<File> &GetFiles() const { return m_Files; }

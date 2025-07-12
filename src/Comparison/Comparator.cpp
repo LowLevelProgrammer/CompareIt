@@ -116,6 +116,9 @@ bool Comparator::CompareEntriesName(RelativeEntrySet dir1Set,
 bool Comparator::AreDirectoriesIdentical(const RelativeEntrySet &dir1Set,
                                          const RelativeEntrySet &dir2Set) {
 
+  const std::uintmax_t totalSize = m_Directory1->ComputeTotalSizeInbuilt();
+  std::uintmax_t currentCompared = 0;
+
   for (const auto &relEntry1 : dir1Set) {
     if (relEntry1.entry->GetType() == EntryType::File) {
       const File *file1 = dynamic_cast<File *>(relEntry1.entry);
@@ -126,7 +129,7 @@ bool Comparator::AreDirectoriesIdentical(const RelativeEntrySet &dir1Set,
       // m_ProgressReporter.ReportComparingContent(relEntry1.relativePath);
       Log("Comparing entry: " + relEntry1.relativePath.string());
 
-      if (!AreFilesIdentical(file1, file2)) {
+      if (!AreFilesIdentical(file1, file2, totalSize, currentCompared)) {
         // m_ProgressReporter.ReportContentMismatch(relEntry1.relativePath);
         Log("Not okay");
         return false;
@@ -138,7 +141,9 @@ bool Comparator::AreDirectoriesIdentical(const RelativeEntrySet &dir1Set,
   return true;
 }
 
-bool Comparator::AreFilesIdentical(const File *file1, const File *file2) {
+bool Comparator::AreFilesIdentical(const File *file1, const File *file2,
+                                   const std::uintmax_t totalSize,
+                                   std::uintmax_t &currentCompared) {
   std::ifstream fileStream1(file1->GetPath(), std::ios::binary);
   std::ifstream fileStream2(file2->GetPath(), std::ios::binary);
 
@@ -162,6 +167,10 @@ bool Comparator::AreFilesIdentical(const File *file1, const File *file2) {
         std::memcmp(buffer1, buffer2, bytesRead1) != 0) {
       return false;
     }
+
+    currentCompared += bytesRead1;
+    int percent = (float)currentCompared / (float)totalSize * 100;
+    ReportProgress(percent);
   }
 
   return true;
